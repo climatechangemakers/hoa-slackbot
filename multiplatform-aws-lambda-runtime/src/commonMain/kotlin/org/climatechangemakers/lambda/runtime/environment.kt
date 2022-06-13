@@ -9,7 +9,7 @@ internal enum class LambdaEnvironmentVariable(val key: String) {
 }
 
 internal fun getEnvironmentVariable(variable: LambdaEnvironmentVariable): String {
-  return requireNotNull(getEnvironmentVariable(variable.key)) {
+  return checkNotNull(getEnvironmentVariable(variable.key)) {
     "No environment variable defined for ${variable.key}."
   }
 }

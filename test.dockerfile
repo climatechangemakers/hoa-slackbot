@@ -2,7 +2,7 @@ FROM gradle:7.4.2-jdk11 AS build
 RUN mkdir -p /app
 COPY ./ /app
 WORKDIR /app
-RUN ./gradlew --no-daemon :slackbot:linkReleaseExecutableLinuxX64
+RUN gradle --no-daemon :slackbot:linkReleaseExecutableLinuxX64
 
 FROM debian:buster-slim
 WORKDIR /app
