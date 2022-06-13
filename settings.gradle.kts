@@ -1,4 +1,5 @@
 
 rootProject.name = "hoa-slackbot"
 
-include("multiplatform-aws-lambda-runtime")
+include(":multiplatform-aws-lambda-runtime")
+include(":slackbot")
