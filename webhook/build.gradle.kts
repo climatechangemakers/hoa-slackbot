@@ -10,7 +10,7 @@ kotlin {
   linuxX64 {
     binaries {
       executable {
-        entryPoint = "org.climatechangemakers.hoa.slackbot.main"
+        entryPoint = "org.climatechangemakers.hoa.webhook.main"
       }
     }
   }

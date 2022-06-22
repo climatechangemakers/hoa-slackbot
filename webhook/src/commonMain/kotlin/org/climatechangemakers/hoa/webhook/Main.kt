@@ -1,4 +1,4 @@
-package org.climatechangemakers.hoa.slackbot
+package org.climatechangemakers.hoa.webhook
 
 import kotlinx.coroutines.runBlocking
 import org.climatechangemakers.lambda.model.InvocationRequest
