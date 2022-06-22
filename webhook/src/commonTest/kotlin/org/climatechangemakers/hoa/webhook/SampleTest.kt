@@ -1,4 +1,4 @@
-package org.climatechangemakers.hoa.slackbot
+package org.climatechangemakers.hoa.webhook
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

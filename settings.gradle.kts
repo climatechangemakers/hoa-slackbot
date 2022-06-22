@@ -1,5 +1,5 @@
 
-rootProject.name = "hoa-slackbot"
+rootProject.name = "hoa-webhook"
 
 include(":multiplatform-aws-lambda-runtime")
-include(":slackbot")
+include(":webhook")
