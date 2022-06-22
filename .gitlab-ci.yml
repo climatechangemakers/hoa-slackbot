@@ -1,0 +1,27 @@
+stages:
+  - test
+
+lambda-runtime:jvmTest:
+  image: gradle:7.4.2-jdk11
+  stage: test
+  script: gradle :multiplatform-aws-lambda-runtime:jvmTest
+  only:
+    - trunk
+    - external_pull_requests
+
+lambda-runtime:linuxX64Test:
+  image: gradle:7.4.2-jdk11
+  stage: test
+  script: gradle :multiplatform-aws-lambda-runtime:linuxX64Test
+  only:
+    - trunk
+    - external_pull_requests
+
+slackbot:linuxX64Test:
+  image: gradle:7.4.2-jdk11
+  stage: test
+  needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
+  script: gradle :slackbot:linuxX64Test
+  only:
+    - trunk
+    - external_pull_requests
