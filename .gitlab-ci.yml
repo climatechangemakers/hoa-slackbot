@@ -1,9 +1,15 @@
+services:
+  - docker:dind
+
 stages:
   - test
+  - build
+  - deploy
 
 lambda-runtime:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
+  needs: []
   script: gradle :multiplatform-aws-lambda-runtime:jvmTest
   only:
     - trunk
@@ -12,6 +18,7 @@ lambda-runtime:jvmTest:
 lambda-runtime:linuxX64Test:
   image: gradle:7.4.2-jdk11
   stage: test
+  needs: []
   script: gradle :multiplatform-aws-lambda-runtime:linuxX64Test
   only:
     - trunk
@@ -25,3 +32,32 @@ webhook:linuxX64Test:
   only:
     - trunk
     - external_pull_requests
+
+docker:build:
+  image: docker:stable
+  stage: build
+  needs: []
+  variables:
+    TAGGED_IMAGE: "$IMAGE_TAG:$CI_COMMIT_SHORT_SHA"
+  script:
+    - docker build -t $TAGGED_IMAGE . -f production.dockerfile
+    - docker save $TAGGED_IMAGE > build.tar
+  artifacts:
+    paths:
+      - build.tar
+  only:
+    - trunk
+    - external_pull_requests
+
+docker:deploy:
+  image: docker:stable
+  stage: deploy
+  needs: ["webhook:linuxX64Test", "docker:build"]
+  variables:
+    TAGGED_IMAGE: "$IMAGE_TAG:$CI_COMMIT_SHORT_SHA"
+  script:
+    - docker load -i build.tar
+    - docker login -u $GITLAB_USER_LOGIN -p $GITLAB_API_KEY registry.gitlab.com
+    - docker push $IMAGE_TAG
+  only:
+    - trunk
