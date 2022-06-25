@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Climate Changemakers' Hour of Action AWS Lambda Webhook
+
+Parameters:
+  ImageUri:
+    Type: String
+    Description: The Docker image URI.
+
+Resources:
+  Function:
+    Type: AWS::Lambda::Function
+    Properties:
+      PackageType: Image
+      Role: "arn:aws:iam::207054523690:role/hoa-webhook-lambdaRole"
+      Code:
+        ImageUri: !Ref 'ImageUri'
