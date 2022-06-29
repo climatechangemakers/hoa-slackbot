@@ -2,6 +2,7 @@ stages:
   - test
   - build
   - publish
+  - deploy
 
 lambda-runtime:jvmTest:
   image: gradle:7.4.2-jdk11
@@ -63,5 +64,18 @@ ecr:publish:
     - docker load -i build.tar
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
     - docker push $IMAGE_REPOSITORY
+  only:
+    - trunk
+
+lambda:deploy:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  stage: deploy
+  needs: ["ecr:publish"]
+  variables:
+    TAGGED_IMAGE: "$IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+  script:
+    - aws lambda update-function-code --function-name $AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
   only:
     - trunk
