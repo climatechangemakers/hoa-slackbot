@@ -10,5 +10,6 @@ fun main() = runBlocking {
 }
 
 private suspend fun handleRequest(request: InvocationRequest): InvocationResponse {
+  println(request.payload)
   return InvocationResponse(request.payload)
 }
