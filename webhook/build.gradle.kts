@@ -1,5 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.kotlin.serialization)
 }
 
 group = "org.climatechangemakers"
@@ -18,6 +19,8 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
+        implementation(libs.kotlinx.serialization.json)
+        implementation(libs.kotlinx.datetime)
         implementation(project(":multiplatform-aws-lambda-runtime"))
       }
     }
