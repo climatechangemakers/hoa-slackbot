@@ -10,14 +10,14 @@ fun main() = runBlocking {
   val json = Json.Default
 
   runLambda { request ->
-    handleRequest(json, request)
+    handleRequest(json, request.payload)
   }
 }
 
-private suspend fun handleRequest(json: Json, request: InvocationRequest): InvocationResponse {
+internal suspend fun handleRequest(json: Json, requestJson: String): InvocationResponse {
   val lumaRequest = json.decodeFromString(
     deserializer = LumaEventAttendanceRequest.serializer(),
-    string = request.payload,
+    string = requestJson,
   )
 
   return InvocationResponse(lumaRequest.toString())
