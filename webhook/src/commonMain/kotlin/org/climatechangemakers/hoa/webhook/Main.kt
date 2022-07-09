@@ -1,15 +1,24 @@
 package org.climatechangemakers.hoa.webhook
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import org.climatechangemakers.lambda.model.InvocationRequest
 import org.climatechangemakers.lambda.model.InvocationResponse
 import org.climatechangemakers.lambda.runtime.runLambda
 
 fun main() = runBlocking {
-  runLambda(::handleRequest)
+  val json = Json.Default
+
+  runLambda { request ->
+    handleRequest(json, request.payload)
+  }
 }
 
-private suspend fun handleRequest(request: InvocationRequest): InvocationResponse {
-  println(request.payload)
-  return InvocationResponse(request.payload)
+internal suspend fun handleRequest(json: Json, requestJson: String): InvocationResponse {
+  val lumaRequest = json.decodeFromString(
+    deserializer = LumaEventAttendanceRequest.serializer(),
+    string = requestJson,
+  )
+
+  return InvocationResponse(lumaRequest.toString())
 }
