@@ -58,9 +58,11 @@ private suspend fun handleEvent(
 } catch (e: LambdaHandlerException) {
   println("Reporting LambdaHandlerException $e.")
   service.reportInvocationError(requestId = event.requestId, error = e)
+  println("Error successfuly reported.")
   null
 } catch (e: Throwable) {
   println("Reporting Throwable $e.")
   service.reportInvocationError(requestId = event.requestId, error = LambdaHandlerException(cause = e))
+  println("Error successfuly reported.")
   null
 }
