@@ -5,6 +5,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -77,6 +78,8 @@ internal class KtorAwsService : AwsService {
     error: LambdaHandlerException,
   ) {
     client.post(urlString = "http://$host/$API_VERSION/runtime/invocation/$requestId/error") {
+      contentType(ContentType.Application.Json)
+      error.errorType?.also { header(AwsLambdaHeader.FunctionErrorType.key, it) }
       setBody(
         json.encodeToString(
           serializer = LambdaError.serializer(),
@@ -91,8 +94,9 @@ internal class KtorAwsService : AwsService {
   }
 
   override suspend fun reportInitializationError(error: Throwable) {
-    error.printStackTrace()
     client.post(urlString = "http://$host/$API_VERSION/runtime/init/error") {
+      contentType(ContentType.Application.Json)
+      error::class.qualifiedName?.also { header(AwsLambdaHeader.FunctionErrorType.key, it) }
       setBody(
         json.encodeToString(
           serializer = LambdaError.serializer(),
@@ -117,4 +121,5 @@ internal class KtorAwsService : AwsService {
 
 private enum class AwsLambdaHeader(val key: String) {
   RequestId("Lambda-Runtime-Aws-Request-Id"),
+  FunctionErrorType("Lambda-Runtime-Function-Error-Type"),
 }
