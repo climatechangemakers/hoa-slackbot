@@ -90,7 +90,7 @@ internal class KtorAwsService : AwsService {
           )
         )
       )
-    }.also(::println)
+    }
   }
 
   override suspend fun reportInitializationError(error: Throwable) {

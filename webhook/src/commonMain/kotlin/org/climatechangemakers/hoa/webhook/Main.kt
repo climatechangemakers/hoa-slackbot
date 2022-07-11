@@ -20,7 +20,5 @@ internal suspend fun handleRequest(json: Json, requestJson: String): InvocationR
     string = requestJson,
   )
 
-  println(lumaRequest)
-
   return InvocationResponse(lumaRequest.toString())
 }
