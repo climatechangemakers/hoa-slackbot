@@ -90,6 +90,8 @@ internal class KtorAwsService : AwsService {
           )
         )
       )
+    }.also {
+      println(it.bodyAsText())
     }
   }
 
