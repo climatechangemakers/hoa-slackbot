@@ -47,7 +47,7 @@ internal interface AwsService : Closeable {
 internal class KtorAwsService : AwsService {
 
   private val host: String = getEnvironmentVariable(LambdaEnvironmentVariable.LambdaRuntimeAPI)
-  private val json = Json.Default
+  private val json = Json { prettyPrint = true }
   private val client: HttpClient = HttpClient(CIO) {
     expectSuccess = true
     install(HttpTimeout)
@@ -76,35 +76,34 @@ internal class KtorAwsService : AwsService {
   override suspend fun reportInvocationError(
     requestId: String,
     error: LambdaHandlerException,
-  ) {
-    client.post(urlString = "http://$host/$API_VERSION/runtime/invocation/$requestId/error") {
-      contentType(ContentType.Application.Json)
-      error.errorType?.also { header(AwsLambdaHeader.FunctionErrorType.key, it) }
-      setBody(
-        json.encodeToString(
-          serializer = LambdaError.serializer(),
-          value = LambdaError(
-            errorMessage = error.message,
-            errorType = error.errorType,
-            stackTrace = error.listStackTrace,
-          )
-        )
-      )
-    }.also {
-      println(it.bodyAsText())
-    }
-  }
+  ) = reportError(
+    url = "http://$host/$API_VERSION/runtime/invocation/$requestId/error",
+    error = LambdaError(
+      errorMessage = error.message,
+      errorType = error.errorType,
+      stackTrace = error.listStackTrace,
+    )
+  )
 
-  override suspend fun reportInitializationError(error: Throwable) {
-    client.post(urlString = "http://$host/$API_VERSION/runtime/init/error") {
-      contentType(ContentType.Application.Json)
-      error::class.qualifiedName?.also { header(AwsLambdaHeader.FunctionErrorType.key, it) }
-      setBody(
-        json.encodeToString(
-          serializer = LambdaError.serializer(),
-          value = LambdaError(stackTrace = error.listStackTrace),
-        )
-      )
+  override suspend fun reportInitializationError(error: Throwable) = reportError(
+    url = "http://$host/$API_VERSION/runtime/init/error",
+    error = LambdaError(
+      errorMessage = error.message,
+      errorType = error::class.qualifiedName,
+      stackTrace = error.listStackTrace,
+    )
+  )
+
+  private suspend fun reportError(url: String, error: LambdaError) {
+    val errorString = json.encodeToString(serializer = LambdaError.serializer(), value = error)
+    try {
+      client.post(urlString = url) {
+        contentType(ContentType.Application.Json)
+        error.errorType?.also { header(AwsLambdaHeader.FunctionErrorType.key, it) }
+        setBody(errorString)
+      }
+    } finally {
+      println(errorString)
     }
   }
 
