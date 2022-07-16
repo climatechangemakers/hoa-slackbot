@@ -9,8 +9,8 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.climatechangemakers.lambda.model.InvocationRequest
-import org.climatechangemakers.lambda.model.InvocationResponse
+import org.climatechangemakers.lambda.model.RawRequest
+import org.climatechangemakers.lambda.model.RawResponse
 import org.climatechangemakers.lambda.runtime.LambdaEnvironmentVariable
 import org.climatechangemakers.lambda.runtime.LambdaHandlerException
 import org.climatechangemakers.lambda.runtime.getEnvironmentVariable
@@ -19,16 +19,16 @@ import org.climatechangemakers.lambda.runtime.listStackTrace
 internal interface AwsService : Closeable {
 
   /**
-   * Get the next [InvocationRequest] that's queued up in AWS Lambda.
+   * Get the next [RawRequest] that's queued up in AWS Lambda.
    */
-  suspend fun next(): InvocationRequest
+  suspend fun next(): RawRequest
 
   /**
    * Respond to an invocation associated with [requestId] with [response].
    */
   suspend fun respond(
     requestId: String,
-    response: InvocationResponse,
+    response: RawResponse,
   )
 
   /**
@@ -53,13 +53,13 @@ internal class KtorAwsService : AwsService {
     install(HttpTimeout)
   }
 
-  override suspend fun next(): InvocationRequest {
+  override suspend fun next(): RawRequest {
     val response: HttpResponse = client.get(urlString = "http://$host/$API_VERSION/runtime/invocation/next") {
       // We never want to time out. This is "long polling" for the next incoming request. The AWS Lambda
       // runtime will decide when to end the process.
       timeout { requestTimeoutMillis = Long.MAX_VALUE }
     }
-    return InvocationRequest(
+    return RawRequest(
       requestId = checkNotNull(response.headers[AwsLambdaHeader.RequestId.key]) {
         "AWS Lambda next invocation had no value for ${AwsLambdaHeader.RequestId.key}"
       },
@@ -67,7 +67,7 @@ internal class KtorAwsService : AwsService {
     )
   }
 
-  override suspend fun respond(requestId: String, response: InvocationResponse) {
+  override suspend fun respond(requestId: String, response: RawResponse) {
     client.post(urlString = "http://$host/$API_VERSION/runtime/invocation/$requestId/response") {
       setBody(response.payload)
     }

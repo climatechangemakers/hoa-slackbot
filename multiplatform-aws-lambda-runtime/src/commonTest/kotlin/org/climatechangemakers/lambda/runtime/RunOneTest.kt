@@ -2,8 +2,8 @@ package org.climatechangemakers.lambda.runtime
 
 import app.cash.turbine.test
 import org.climatechangemakers.lambda.fake.FakeAwsService
-import org.climatechangemakers.lambda.model.InvocationRequest
-import org.climatechangemakers.lambda.model.InvocationResponse
+import org.climatechangemakers.lambda.model.RawRequest
+import org.climatechangemakers.lambda.model.RawResponse
 import org.climatechangemakers.lambda.runWithTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,9 +14,9 @@ class RunOneTest {
   private val fakeAwsService = FakeAwsService()
 
   @Test fun `successful invocation reports response to correct id`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("some_id", "") }
-    fakeAwsService.invocationResponses.test {
-      runOnce(fakeAwsService) { InvocationResponse("This is a response, yo!") }
+    fakeAwsService.queueNext { RawRequest("some_id", "") }
+    fakeAwsService.rawResponses.test {
+      runOnce(fakeAwsService) { RawResponse("This is a response, yo!") }
       assertEquals(
         expected = "some_id",
         actual = awaitItem().first,
@@ -25,9 +25,9 @@ class RunOneTest {
   }
 
   @Test fun `successful invocation reports correct response`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("", "") }
-    fakeAwsService.invocationResponses.test {
-      val response = InvocationResponse("This is a response, yo!")
+    fakeAwsService.queueNext { RawRequest("", "") }
+    fakeAwsService.rawResponses.test {
+      val response = RawResponse("This is a response, yo!")
       runOnce(fakeAwsService) { response }
       assertSame(
         expected = response,
@@ -37,9 +37,9 @@ class RunOneTest {
   }
 
   @Test fun `exception in lambda handler does not report reponse`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("", "") }
+    fakeAwsService.queueNext { RawRequest("", "") }
     fakeAwsService.queueResponseError(Exception("Poopy butt."))
-    fakeAwsService.invocationResponses.test {
+    fakeAwsService.rawResponses.test {
       runOnce(fakeAwsService) { throw LambdaHandlerException() }
       expectNoEvents()
     }
@@ -57,10 +57,10 @@ class RunOneTest {
   }
 
   @Test fun `exception submitting response reports init error`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("", "") }
+    fakeAwsService.queueNext { RawRequest("", "") }
     fakeAwsService.queueResponseError(Exception("Poopy butt."))
     fakeAwsService.initializationErrors.test {
-      runOnce(fakeAwsService) { InvocationResponse("") }
+      runOnce(fakeAwsService) { RawResponse("") }
       assertEquals(
         expected = "Poopy butt.",
         actual = awaitItem().message,
@@ -70,7 +70,7 @@ class RunOneTest {
 
   @Test fun `explicit lambda handler exception reports invocation error`() = runWithTimeout {
     fakeAwsService.queueNext {
-      InvocationRequest("", "")
+      RawRequest("", "")
     }
     fakeAwsService.queueResponseError(Exception("Poopy butt."))
     fakeAwsService.invocationExceptions.test {
@@ -84,7 +84,7 @@ class RunOneTest {
   }
 
   @Test fun `explicit lambda handler exception reports for correct request id`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("some_id", "") }
+    fakeAwsService.queueNext { RawRequest("some_id", "") }
     fakeAwsService.queueResponseError(Exception("Poopy butt."))
     fakeAwsService.invocationExceptions.test {
       runOnce(fakeAwsService) { throw LambdaHandlerException() }
@@ -96,7 +96,7 @@ class RunOneTest {
   }
 
   @Test fun `uncaught lambda handler exception reports invocation error`() = runWithTimeout {
-    fakeAwsService.queueNext { InvocationRequest("", "") }
+    fakeAwsService.queueNext { RawRequest("", "") }
     fakeAwsService.queueResponseError(Exception("Poopy butt."))
     fakeAwsService.invocationExceptions.test {
       val exception = IllegalArgumentException()

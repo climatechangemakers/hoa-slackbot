@@ -1,8 +1,11 @@
 package org.climatechangemakers.lambda.runtime
 
 import io.ktor.utils.io.core.*
-import org.climatechangemakers.lambda.model.InvocationRequest
-import org.climatechangemakers.lambda.model.InvocationResponse
+import kotlinx.serialization.json.Json
+import org.climatechangemakers.lambda.model.ApiGatewayRequestV2
+import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
+import org.climatechangemakers.lambda.model.RawRequest
+import org.climatechangemakers.lambda.model.RawResponse
 import org.climatechangemakers.lambda.service.AwsService
 import org.climatechangemakers.lambda.service.KtorAwsService
 
@@ -20,15 +23,28 @@ import org.climatechangemakers.lambda.service.KtorAwsService
  * be reported.
  */
 public suspend fun runLambda(
-  handler: suspend (InvocationRequest) -> InvocationResponse,
+  handler: suspend (RawRequest) -> RawResponse,
 ): Unit = runLambdaInternal(
   service = KtorAwsService(),
   handler = handler,
 )
 
+public suspend fun runLambda(
+  json: Json,
+  handler: suspend (ApiGatewayRequestV2) -> ApiGatewayResponseV2,
+): Unit = runLambda { rawRequest ->
+  val request = json.decodeFromString(ApiGatewayRequestV2.serializer(), rawRequest.payload)
+  RawResponse(
+    json.encodeToString(
+      serializer = ApiGatewayResponseV2.serializer(),
+      value = handler(request),
+    )
+  )
+}
+
 internal suspend fun runLambdaInternal(
   service: AwsService,
-  handler: suspend (InvocationRequest) -> InvocationResponse,
+  handler: suspend (RawRequest) -> RawResponse,
 ): Unit = service.use { aws ->
   while (true) {
     runOnce(service = aws, handler = handler)
@@ -37,7 +53,7 @@ internal suspend fun runLambdaInternal(
 
 internal suspend fun runOnce(
   service: AwsService,
-  handler: suspend (InvocationRequest) -> InvocationResponse,
+  handler: suspend (RawRequest) -> RawResponse,
 ) {
   try {
     val event = service.next()
@@ -50,10 +66,10 @@ internal suspend fun runOnce(
 }
 
 private suspend fun handleEvent(
-  event: InvocationRequest,
+  event: RawRequest,
   service: AwsService,
-  handler: suspend (InvocationRequest) -> InvocationResponse,
-): InvocationResponse? = try {
+  handler: suspend (RawRequest) -> RawResponse,
+): RawResponse? = try {
   handler(event)
 } catch (e: LambdaHandlerException) {
   service.reportInvocationError(requestId = event.requestId, error = e)

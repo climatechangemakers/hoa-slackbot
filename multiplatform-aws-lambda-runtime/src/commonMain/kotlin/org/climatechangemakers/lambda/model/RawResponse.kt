@@ -1,5 +1,5 @@
 package org.climatechangemakers.lambda.model
 
-public class InvocationResponse(
+public class RawResponse(
   public val payload: String,
 )

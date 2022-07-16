@@ -1,6 +1,6 @@
 package org.climatechangemakers.lambda.model
 
-public class InvocationRequest internal constructor(
+public class RawRequest internal constructor(
   internal val requestId: String,
   public val payload: String,
 )
