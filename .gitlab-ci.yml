@@ -125,15 +125,15 @@ attendance:lambda:deploy:
   only:
     - trunk
 
-#event:lambda:deploy:
-#  image:
-#    name: amazon/aws-cli
-#    entrypoint: [""]
-#  stage: deploy
-#  needs: ["event:ecr:publish"]
-#  variables:
-#    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-#  script:
-#    - aws lambda update-function-code --function-name $AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
-#  only:
-#    - trunk
+event:lambda:deploy:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  stage: deploy
+  needs: ["event:ecr:publish"]
+  variables:
+    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+  script:
+    - aws lambda update-function-code --function-name $EVENT_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
+  only:
+    - trunk
