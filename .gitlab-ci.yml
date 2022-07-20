@@ -31,7 +31,7 @@ attendance:linuxX64Test:
     - trunk
     - external_pull_requests
 
-docker:build:
+attendance:docker:build:
   image: docker:stable
   stage: build
   needs: []
@@ -40,7 +40,7 @@ docker:build:
   variables:
     TAGGED_IMAGE: "$IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   script:
-    - docker build -t $TAGGED_IMAGE . -f production.dockerfile
+    - docker build -t $TAGGED_IMAGE . -f attendance/production.dockerfile
     - docker save $TAGGED_IMAGE > build.tar
   artifacts:
     paths:
@@ -49,12 +49,12 @@ docker:build:
     - trunk
     - external_pull_requests
 
-ecr:publish:
+attendance:ecr:publish:
   image: docker:stable
   stage: publish
   services:
     - docker:dind
-  needs: ["attendance:linuxX64Test", "docker:build"]
+  needs: ["attendance:linuxX64Test", "attendance:docker:build"]
   variables:
     TAGGED_IMAGE: "$IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   before_script:
@@ -67,12 +67,12 @@ ecr:publish:
   only:
     - trunk
 
-lambda:deploy:
+attendance:lambda:deploy:
   image:
     name: amazon/aws-cli
     entrypoint: [""]
   stage: deploy
-  needs: ["ecr:publish"]
+  needs: ["attendance:ecr:publish"]
   variables:
     TAGGED_IMAGE: "$IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   script:
