@@ -11,7 +11,7 @@ kotlin {
   linuxX64 {
     binaries {
       executable {
-        entryPoint = "org.climatechangemakers.hoa.webhook.main"
+        entryPoint = "org.climatechangemakers.hoa.attendance.main"
       }
     }
   }

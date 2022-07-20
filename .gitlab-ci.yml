@@ -22,11 +22,11 @@ lambda-runtime:linuxX64Test:
     - trunk
     - external_pull_requests
 
-webhook:linuxX64Test:
+attendance:linuxX64Test:
   image: gradle:7.4.2-jdk11
   stage: test
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :webhook:linuxX64Test
+  script: gradle :attendance:linuxX64Test
   only:
     - trunk
     - external_pull_requests
@@ -54,7 +54,7 @@ ecr:publish:
   stage: publish
   services:
     - docker:dind
-  needs: ["webhook:linuxX64Test", "docker:build"]
+  needs: ["attendance:linuxX64Test", "docker:build"]
   variables:
     TAGGED_IMAGE: "$IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   before_script:

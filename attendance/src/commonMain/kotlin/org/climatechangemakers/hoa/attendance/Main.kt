@@ -1,4 +1,4 @@
-package org.climatechangemakers.hoa.webhook
+package org.climatechangemakers.hoa.attendance
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
