@@ -15,12 +15,6 @@ fun main() = runBlocking {
     }
     println(lumaEvent)
 
-    ApiGatewayResponseV2(
-      statusCode = 202,
-      headers = emptyMap(),
-      cookies = emptyList(),
-      isBase64Encoded = false,
-      body = null,
-    )
+    ApiGatewayResponseV2(statusCode = 202)
   }
 }
