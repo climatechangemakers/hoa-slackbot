@@ -44,10 +44,11 @@ internal interface AwsService : Closeable {
   )
 }
 
-internal class KtorAwsService : AwsService {
+internal class KtorAwsService(
+  private val json: Json,
+) : AwsService {
 
   private val host: String = getEnvironmentVariable(LambdaEnvironmentVariable.LambdaRuntimeAPI)
-  private val json = Json { prettyPrint = true }
   private val client: HttpClient = HttpClient(CIO) {
     expectSuccess = true
     install(HttpTimeout)

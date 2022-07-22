@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 class ApiGatewayDeserializationTest {
 
-  private val json = Json.Default
+  private val json = Json { encodeDefaults = true }
 
   @Test fun `V2 deserializes correctly`() {
     val jsonString = """

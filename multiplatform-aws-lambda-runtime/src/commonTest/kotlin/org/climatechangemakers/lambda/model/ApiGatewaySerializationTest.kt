@@ -9,6 +9,7 @@ class ApiGatewaySerializationTest {
   private val json = Json {
     prettyPrint = true
     prettyPrintIndent = "  "
+    encodeDefaults = true
   }
 
   @Test fun `V2 response serializes correctly`() = assertEquals(

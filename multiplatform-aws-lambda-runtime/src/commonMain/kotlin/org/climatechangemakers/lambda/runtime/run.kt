@@ -9,6 +9,10 @@ import org.climatechangemakers.lambda.model.RawResponse
 import org.climatechangemakers.lambda.service.AwsService
 import org.climatechangemakers.lambda.service.KtorAwsService
 
+internal val LambdaJson = Json {
+  encodeDefaults = true
+}
+
 /**
  * Run [handler] for each invocation the AWS Lambda runtime receives. This function
  * sets up an internal event loop in which [handler] can be invoked multiple times.
@@ -23,28 +27,27 @@ import org.climatechangemakers.lambda.service.KtorAwsService
  * be reported.
  */
 public suspend fun runLambda(
-  handler: suspend (RawRequest) -> RawResponse,
+  handler: RawLambdaHandler,
 ): Unit = runLambdaInternal(
-  service = KtorAwsService(),
+  service = KtorAwsService(LambdaJson),
   handler = handler,
 )
 
 public suspend fun runLambda(
-  json: Json,
-  handler: suspend (ApiGatewayRequestV2) -> ApiGatewayResponseV2,
-): Unit = runLambda { rawRequest ->
-  val request = json.decodeFromString(ApiGatewayRequestV2.serializer(), rawRequest.payload)
+  handler: ApiGatewayV2LambdaHandler,
+): Unit = runLambdaInternal(KtorAwsService(LambdaJson)) { rawRequest ->
+  val request = LambdaJson.decodeFromString(ApiGatewayRequestV2.serializer(), rawRequest.payload)
   RawResponse(
-    json.encodeToString(
+    LambdaJson.encodeToString(
       serializer = ApiGatewayResponseV2.serializer(),
-      value = handler(request),
+      value = handler.invoke(request),
     )
   )
 }
 
 internal suspend fun runLambdaInternal(
   service: AwsService,
-  handler: suspend (RawRequest) -> RawResponse,
+  handler: RawLambdaHandler,
 ): Unit = service.use { aws ->
   while (true) {
     runOnce(service = aws, handler = handler)
@@ -53,7 +56,7 @@ internal suspend fun runLambdaInternal(
 
 internal suspend fun runOnce(
   service: AwsService,
-  handler: suspend (RawRequest) -> RawResponse,
+  handler: RawLambdaHandler,
 ) {
   try {
     val event = service.next()
@@ -68,9 +71,9 @@ internal suspend fun runOnce(
 private suspend fun handleEvent(
   event: RawRequest,
   service: AwsService,
-  handler: suspend (RawRequest) -> RawResponse,
+  handler: RawLambdaHandler,
 ): RawResponse? = try {
-  handler(event)
+  handler.invoke(event)
 } catch (e: LambdaHandlerException) {
   service.reportInvocationError(requestId = event.requestId, error = e)
   null
