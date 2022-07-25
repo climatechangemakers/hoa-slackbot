@@ -1,0 +1,28 @@
+actions_raw
+  * email
+  * full_name
+  * date (need lookup table for times) 
+  * status (always approved)
+
+attendance_preview
+  * action date (lookup table for times)
+  * status (always approved)
+  * join on contacts (airtable_id)
+    * email
+    * first name + last name = full name
+
+hoa_attendance_zoom_with_action
+  * date (lookup table) 
+  * email
+  * first_name + lastname == full_name
+  * status always approved 
+
+hoa_events
+  * 
+
+luma_attendance
+  * email
+  * event_id 
+    * join on hoa_events for date, then lookup table for times 
+  * first_name + last_name == full name (join on contacts via email) 
+  * status is approved 
