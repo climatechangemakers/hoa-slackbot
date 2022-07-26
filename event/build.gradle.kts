@@ -1,4 +1,7 @@
+import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
+
 plugins {
+  application
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.sqldelight)
@@ -6,6 +9,14 @@ plugins {
 
 group = "org.climatechangemakers"
 version = "0.0.1"
+
+tasks.jar {
+  manifest {
+    attributes["Main-Class"] = "org.climatechangemakers.hoa.event.Main"
+  }
+  from(configurations.runtimeClasspath.get().asFileTree.files.map { zipTree(it) })
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 sqldelight {
   database("Database") {

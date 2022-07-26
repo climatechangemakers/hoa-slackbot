@@ -31,11 +31,11 @@ attendance:linuxX64Test:
     - trunk
     - external_pull_requests
 
-event:linuxX64Test:
+event:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :event:linuxX64Test
+  script: gradle :event:test
   only:
     - trunk
     - external_pull_requests
