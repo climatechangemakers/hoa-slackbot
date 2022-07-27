@@ -2,7 +2,7 @@ FROM gradle:7.4.2-jdk11 AS build
 RUN mkdir -p /app
 COPY ./ /app
 WORKDIR /app
-RUN gradle --no-daemon :event:linkReleaseExecutableLinuxX64
+RUN gradle --no-daemon :event:build -x test
 
 FROM openjdk:11.0.12-jre
 WORKDIR /app

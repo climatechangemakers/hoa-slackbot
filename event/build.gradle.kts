@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.backend.common.serialization.mangle.collectForMangler
-
 plugins {
   application
   alias(libs.plugins.kotlin.jvm)

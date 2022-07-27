@@ -101,7 +101,7 @@ event:ecr:publish:
   stage: publish
   services:
     - docker:dind
-  needs: ["event:linuxX64Test", "event:docker:build"]
+  needs: ["event:jvmTest", "event:docker:build"]
   variables:
     TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   before_script:
