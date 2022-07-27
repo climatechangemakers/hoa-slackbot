@@ -34,6 +34,8 @@ attendance:linuxX64Test:
 event:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
+  services:
+    - docker:dind
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
   script: gradle :event:test
   only:

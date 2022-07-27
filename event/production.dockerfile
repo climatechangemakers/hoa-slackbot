@@ -4,8 +4,9 @@ COPY ./ /app
 WORKDIR /app
 RUN gradle --no-daemon :event:linkReleaseExecutableLinuxX64
 
-FROM debian:buster-slim
+FROM openjdk:11.0.12-jre
 WORKDIR /app
-COPY --from=build /app/event/build/bin/linuxX64/releaseExecutable/event.kexe /usr/local/bin
+COPY --from=build /app/event/build/libs/event-0.0.1.jar /usr/local/bin
+COPY event/run-jar.sh /usr/local/bin
 
-ENTRYPOINT [ "/usr/local/bin/event.kexe" ]
+ENTRYPOINT [ "/usr/local/bin/run-jar.sh" ]
