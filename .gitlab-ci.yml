@@ -31,11 +31,17 @@ attendance:linuxX64Test:
     - trunk
     - external_pull_requests
 
-event:linuxX64Test:
+event:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :event:linuxX64Test
+  script: gradle :event:test
   only:
     - trunk
     - external_pull_requests
@@ -99,7 +105,7 @@ event:ecr:publish:
   stage: publish
   services:
     - docker:dind
-  needs: ["event:linuxX64Test", "event:docker:build"]
+  needs: ["event:jvmTest", "event:docker:build"]
   variables:
     TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   before_script:

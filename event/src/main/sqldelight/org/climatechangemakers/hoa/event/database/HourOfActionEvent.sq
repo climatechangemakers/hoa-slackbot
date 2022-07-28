@@ -1,0 +1,11 @@
+CREATE TABLE hour_of_action_event(
+  id TEXT NOT NULL PRIMARY KEY,
+  event_start TIMESTAMPTZ NOT NULL,
+  event_name TEXT NOT NULL
+);
+
+insertEvent:
+INSERT INTO hour_of_action_event(id, event_start, event_name)
+VALUES(:id, :eventStart, :eventName)
+ON CONFLICT(id) DO UPDATE
+SET id = :id, event_start = :eventStart, event_name = :eventName;
