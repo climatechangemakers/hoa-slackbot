@@ -36,6 +36,10 @@ event:jvmTest:
   stage: test
   services:
     - docker:dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
   script: gradle :event:test
   only:
