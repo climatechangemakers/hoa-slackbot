@@ -1,0 +1,1 @@
+This is configuration for a local database in Docker which aids in development. 
