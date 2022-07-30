@@ -35,15 +35,17 @@ public suspend fun runLambda(
 
 public suspend fun runLambda(
   handler: ApiGatewayV2LambdaHandler,
-): Unit = runLambdaInternal(KtorAwsService(LambdaJson)) { rawRequest ->
-  val request = LambdaJson.decodeFromString(ApiGatewayRequestV2.serializer(), rawRequest.payload)
-  RawResponse(
-    LambdaJson.encodeToString(
-      serializer = ApiGatewayResponseV2.serializer(),
-      value = handler.invoke(request),
+): Unit = runLambdaInternal(KtorAwsService(LambdaJson), object : RawLambdaHandler {
+  override suspend fun invoke(request: RawRequest): RawResponse {
+    val gatewayRequest = LambdaJson.decodeFromString(ApiGatewayRequestV2.serializer(), request.payload)
+    return RawResponse(
+      LambdaJson.encodeToString(
+        serializer = ApiGatewayResponseV2.serializer(),
+        value = handler.invoke(gatewayRequest),
+      )
     )
-  )
-}
+  }
+})
 
 internal suspend fun runLambdaInternal(
   service: AwsService,
