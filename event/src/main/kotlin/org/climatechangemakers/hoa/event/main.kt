@@ -8,7 +8,7 @@ import org.climatechangemakers.lambda.runtime.runLambda
 import org.postgresql.ds.PGSimpleDataSource
 import org.climatechangemakers.hoa.event.database.Database
 
-fun main() = runBlocking {
+suspend fun main() {
   val driver = PGSimpleDataSource().apply {
     serverNames = arrayOf(getEnvironmentVariable(EnvironmentVariable.DatabaseHostname))
     portNumbers = intArrayOf(getEnvironmentVariable(EnvironmentVariable.DatabasePort).toInt())

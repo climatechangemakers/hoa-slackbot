@@ -12,7 +12,9 @@ services:
       - ${POSTGRES_PORT}:5432
 
   hoa-event:
-    build: ./event/test.dockerfile
+    build:
+      context: . # Gradle requires the root context since this is a multi-module gradle build.
+      dockerfile: ./event/test.dockerfile
     image: hoa-event:latest
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
