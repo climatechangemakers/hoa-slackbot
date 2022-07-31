@@ -32,7 +32,7 @@ class LumaEventLambdaHandler(
       }
     }
   } catch (e: Throwable) {
-    e.printStackTrace()
+    println(e.stackTraceToString())
     ApiGatewayResponseV2(statusCode = 400)
   }
 }

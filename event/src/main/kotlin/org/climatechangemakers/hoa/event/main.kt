@@ -17,5 +17,5 @@ suspend fun main() = try {
   }.asJdbcDriver()
   runLambda(LumaEventLambdaHandler(Database(driver)))
 } catch (e: Throwable) {
-  e.printStackTrace()
+  println(e.stackTraceToString())
 }
