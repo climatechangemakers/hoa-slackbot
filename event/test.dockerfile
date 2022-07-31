@@ -6,7 +6,7 @@ RUN gradle --no-daemon :event:build -x test
 
 FROM openjdk:11.0.12-jre
 WORKDIR /app
-COPY --from=build /app/event/build/libs/event-0.0.1.jar /usr/local/bin
+COPY --from=build /app/event/build/libs/event-0.0.1-all.jar /usr/local/bin
 COPY event/rie-entry-script.sh /entry_script.sh
 COPY event/run-jar.sh /usr/local/bin
 ADD aws/aws-lambda-rie /usr/local/bin/aws-lambda-rie

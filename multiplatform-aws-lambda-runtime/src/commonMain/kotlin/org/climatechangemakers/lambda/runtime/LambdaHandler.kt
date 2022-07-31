@@ -5,11 +5,11 @@ import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
 import org.climatechangemakers.lambda.model.RawRequest
 import org.climatechangemakers.lambda.model.RawResponse
 
-public interface LambdaHandler<Request : Any, Response : Any> {
+public fun interface LambdaHandler<Request : Any, Response : Any> {
 
   public suspend fun invoke(request: Request): Response
 }
 
-public interface RawLambdaHandler : LambdaHandler<RawRequest, RawResponse>
+public fun interface RawLambdaHandler : LambdaHandler<RawRequest, RawResponse>
 
-public interface ApiGatewayV2LambdaHandler : LambdaHandler<ApiGatewayRequestV2, ApiGatewayResponseV2>
+public fun interface ApiGatewayV2LambdaHandler : LambdaHandler<ApiGatewayRequestV2, ApiGatewayResponseV2>

@@ -5,7 +5,6 @@ import org.climatechangemakers.lambda.fake.FakeAwsService
 import org.climatechangemakers.lambda.model.RawRequest
 import org.climatechangemakers.lambda.model.RawResponse
 import org.climatechangemakers.lambda.runWithTimeout
-import org.climatechangemakers.lambda.service.AwsService
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
@@ -108,12 +107,4 @@ class RunOneTest {
       )
     }
   }
-}
-
-private suspend fun runOnce(service: AwsService, function: (RawRequest) -> RawResponse) {
-  runOnce(service, object : RawLambdaHandler {
-    override suspend fun invoke(request: RawRequest): RawResponse {
-      return function(request)
-    }
-  })
 }
