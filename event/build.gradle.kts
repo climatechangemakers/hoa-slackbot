@@ -1,19 +1,34 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
-  application
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.shadow)
   alias(libs.plugins.sqldelight)
+  application
 }
 
 group = "org.climatechangemakers"
 version = "0.0.1"
 
-tasks.jar {
-  manifest {
-    attributes["Main-Class"] = "org.climatechangemakers.hoa.event.Main"
+//tasks.jar {
+//  manifest {
+//    attributes["Main-Class"] = "org.climatechangemakers.hoa.event.Main"
+//  }
+//  from(configurations.runtimeClasspath.get().asFileTree.files.map { zipTree(it) })
+//  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
+
+application {
+  mainClass.set("org.climatechangemakers.hoa.event.Main")
+}
+
+tasks {
+  named<ShadowJar>("shadowJar") {
+    manifest {
+      attributes["Main-Class"] = "org.climatechangemakers.hoa.event.Main"
+    }
   }
-  from(configurations.runtimeClasspath.get().asFileTree.files.map { zipTree(it) })
-  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 sqldelight {
