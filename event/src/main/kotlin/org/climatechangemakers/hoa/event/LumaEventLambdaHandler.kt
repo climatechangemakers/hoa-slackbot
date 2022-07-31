@@ -16,22 +16,26 @@ class LumaEventLambdaHandler(
   private val json = Json.Default
   private val hourOfActionEventQueries = database.hourOfActionEventQueries
 
-  override suspend fun invoke(request: ApiGatewayRequestV2): ApiGatewayResponseV2 {
+  override suspend fun invoke(request: ApiGatewayRequestV2): ApiGatewayResponseV2 = try {
+    println(request.body)
     val lumaEvent = request.body?.let { body ->
       json.decodeFromString(LumaEvent.serializer(), body)
     }
 
-    return when (lumaEvent) {
+    when (lumaEvent) {
       null -> ApiGatewayResponseV2(statusCode = 400)
       else -> {
+        println("Inserting event")
         hourOfActionEventQueries.insertLumaEvent(lumaEvent)
+        println("Inserted Event")
         ApiGatewayResponseV2(statusCode = 202)
       }
     }
+  } catch (e: Throwable) {
+    e.printStackTrace()
+    ApiGatewayResponseV2(statusCode = 400)
   }
 }
-
-private fun Database(): Database = TODO()
 
 private fun HourOfActionEventQueries.insertLumaEvent(event: LumaEvent) {
   insertEvent(
