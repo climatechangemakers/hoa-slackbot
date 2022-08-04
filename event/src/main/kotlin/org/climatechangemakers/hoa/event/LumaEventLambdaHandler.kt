@@ -8,6 +8,7 @@ import org.climatechangemakers.lambda.model.ApiGatewayRequestV2
 import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
 import org.climatechangemakers.lambda.runtime.ApiGatewayV2LambdaHandler
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 
 class LumaEventLambdaHandler(
   database: Database,
@@ -35,6 +36,9 @@ private fun HourOfActionEventQueries.insertLumaEvent(event: LumaEvent) {
   insertEvent(
     id = event.id,
     eventName = event.name,
-    eventStart = event.startTime.toJavaInstant().atOffset(ZoneOffset.UTC),
+    eventStart = event.startTime
+      .toJavaInstant()
+      .atOffset(ZoneOffset.UTC)
+      .truncatedTo(ChronoUnit.MINUTES), // Do this in Kotlin because SQLDelight doesn't currently support pgsql DATE_TRUNC.
   )
 }

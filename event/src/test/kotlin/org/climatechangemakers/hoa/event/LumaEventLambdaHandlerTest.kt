@@ -18,14 +18,14 @@ class LumaEventLambdaHandlerTest : TestContainerProvider() {
       |{
       |  "id": "some_id",
       |  "name": "This is an event name",
-      |  "start_time": "2022-07-25T22:34:35Z"
+      |  "start_time": "2022-07-25T22:34:00Z"
       |}
     """.trimMargin())
     handler.invoke(request)
 
     assertEquals(
       expected = "some_id",
-      actual = queryByInstant(Instant.parse("2022-07-25T22:34:35Z"))
+      actual = queryByInstant(Instant.parse("2022-07-25T22:34:00Z"))
     )
   }
 
@@ -34,7 +34,7 @@ class LumaEventLambdaHandlerTest : TestContainerProvider() {
       |{
       |  "id": "some_id",
       |  "name": "This is an event name",
-      |  "start_time": "2022-07-25T22:34:35Z"
+      |  "start_time": "2022-07-25T22:35:00Z"
       |}
     """.trimMargin())
     val request2 = request("""
@@ -68,6 +68,23 @@ class LumaEventLambdaHandlerTest : TestContainerProvider() {
     assertEquals(
       expected = "some_id",
       actual = queryByInstant(Instant.parse("2022-07-26T00:30:00Z"))
+    )
+  }
+
+  @Test fun `inserting start time truncates to minute`() = runBlocking {
+    val request = request("""
+      |{
+      |  "id": "some_id",
+      |  "name": "This is an event name",
+      |  "start_time": "2022-07-25T08:30:00Z"
+      |}
+    """.trimMargin())
+
+    handler.invoke(request)
+
+    assertEquals(
+      expected = "some_id",
+      actual = queryByInstant(Instant.parse("2022-07-25T08:30:00Z"))
     )
   }
 
