@@ -76,7 +76,7 @@ class LumaEventLambdaHandlerTest : TestContainerProvider() {
       |{
       |  "id": "some_id",
       |  "name": "This is an event name",
-      |  "start_time": "2022-07-25T08:30:00Z"
+      |  "start_time": "2022-07-25T08:30:59Z"
       |}
     """.trimMargin())
 
