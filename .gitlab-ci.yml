@@ -22,11 +22,11 @@ lambda-runtime:linuxX64Test:
     - trunk
     - external_pull_requests
 
-attendance:linuxX64Test:
+attendance:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :attendance:linuxX64Test
+  script: gradle :attendance:test
   only:
     - trunk
     - external_pull_requests
@@ -87,7 +87,7 @@ attendance:ecr:publish:
   stage: publish
   services:
     - docker:dind
-  needs: ["attendance:linuxX64Test", "attendance:docker:build"]
+  needs: ["attendance:jvmTest", "attendance:docker:build"]
   variables:
     TAGGED_IMAGE: "$ATTENDANCE_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   before_script:

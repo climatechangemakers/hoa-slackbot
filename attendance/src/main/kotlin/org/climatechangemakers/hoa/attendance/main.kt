@@ -1,3 +1,5 @@
+@file:JvmName("Main")
+
 package org.climatechangemakers.hoa.attendance
 
 import kotlinx.coroutines.runBlocking
@@ -7,7 +9,7 @@ import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
 import org.climatechangemakers.lambda.runtime.ApiGatewayV2LambdaHandler
 import org.climatechangemakers.lambda.runtime.runLambda
 
-fun main() = runBlocking {
+suspend fun main() {
   runLambda(LumaEventAttendanceLambdaHandler())
 }
 
