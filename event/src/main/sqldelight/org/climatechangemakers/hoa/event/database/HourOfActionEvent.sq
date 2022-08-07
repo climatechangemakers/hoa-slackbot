@@ -6,6 +6,6 @@ CREATE TABLE hour_of_action_event(
 
 insertEvent:
 INSERT INTO hour_of_action_event(id, event_start, event_name)
-VALUES(:id, :eventStart, :eventName)
+VALUES(:id, DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)), :eventName)
 ON CONFLICT(id) DO UPDATE
-SET id = :id, event_start = :eventStart, event_name = :eventName;
+SET id = :id, event_start = DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)), event_name = :eventName;
