@@ -2,7 +2,6 @@
 
 package org.climatechangemakers.hoa.attendance
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.climatechangemakers.lambda.model.ApiGatewayRequestV2
 import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
