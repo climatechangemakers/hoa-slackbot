@@ -33,7 +33,6 @@ sqldelight {
 }
 
 dependencies {
-  implementation(libs.kotlinx.datetime)
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.postgresql)
   implementation(libs.sqldelight.jdbc.driver)
