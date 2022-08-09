@@ -1,6 +1,5 @@
 package org.climatechangemakers.hoa.attendance
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +14,7 @@ class SerializationTest {
       |  "full_name": "Kevin Cianfarini",
       |  "email": "g@gmail.com",
       |  "status": "approved",
-      |  "event_start_time": "2022-07-09T12:00:00.000Z",
+      |  "event_id": "some_id",
       |  "has_joined_event": true
       |}
     """.trimMargin()
@@ -25,7 +24,7 @@ class SerializationTest {
         fullName = "Kevin Cianfarini",
         email = "g@gmail.com",
         status = "approved",
-        eventStartTime = Instant.parse("2022-07-09T12:00:00.000Z"),
+        eventId = "some_id",
         hasJoined = true,
       ),
       actual = json.decodeFromString(
