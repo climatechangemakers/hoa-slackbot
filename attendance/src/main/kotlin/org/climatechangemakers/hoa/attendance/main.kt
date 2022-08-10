@@ -2,29 +2,19 @@
 
 package org.climatechangemakers.hoa.attendance
 
-import kotlinx.serialization.json.Json
-import org.climatechangemakers.lambda.model.ApiGatewayRequestV2
-import org.climatechangemakers.lambda.model.ApiGatewayResponseV2
-import org.climatechangemakers.lambda.runtime.ApiGatewayV2LambdaHandler
+import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import org.climatechangemakers.hoa.attendance.database.Database
+import org.climatechangemakers.hoa.attendance.database.HourOfActionEventAttendanceQueries
 import org.climatechangemakers.lambda.runtime.runLambda
+import org.postgresql.ds.PGSimpleDataSource
 
 suspend fun main() {
-  runLambda(LumaEventAttendanceLambdaHandler())
-}
-
-class LumaEventAttendanceLambdaHandler : ApiGatewayV2LambdaHandler {
-
-  private val json = Json { explicitNulls = false }
-
-  override suspend fun invoke(request: ApiGatewayRequestV2): ApiGatewayResponseV2 {
-    return ApiGatewayResponseV2(
-      statusCode = 202,
-      headers = mapOf("Content-Type" to "application/json"),
-      cookies = emptyList(),
-      isBase64Encoded = false,
-      body = request.body?.let { body ->
-        json.decodeFromString(LumaEventAttendanceRequest.serializer(), body)
-      }?.toString(),
-    )
-  }
+  val driver = PGSimpleDataSource().apply {
+    serverNames = arrayOf(getEnvironmentVariable(EnvironmentVariable.DatabaseHostname))
+    portNumbers = intArrayOf(getEnvironmentVariable(EnvironmentVariable.DatabasePort).toInt())
+    user = getEnvironmentVariable(EnvironmentVariable.DatabaseUser)
+    password = getEnvironmentVariable(EnvironmentVariable.DatabasePassword)
+    databaseName = getEnvironmentVariable(EnvironmentVariable.DatabaseName)
+  }.asJdbcDriver()
+  runLambda(LumaEventAttendanceLambdaHandler(Database(driver)))
 }
