@@ -67,6 +67,72 @@ class LumaEventAttendanceLambdaHandlerTest : TestContainerProvider() {
     assertEquals(expected = "New Name", actual = name)
   }
 
+  @Test fun `upsert has joined event with true`() = runBlocking {
+    val request = request("""
+      |{
+      |  "full_name": "Kevin",
+      |  "email": "kevin@kevin.com",
+      |  "status": "approved",
+      |  "event_id": "some_id",
+      |  "has_joined_event": false
+      |}
+    """.trimMargin())
+
+    val request2 = request("""
+      |{
+      |  "full_name": "Kevin",
+      |  "email": "kevin@kevin.com",
+      |  "status": "approved",
+      |  "event_id": "some_id",
+      |  "has_joined_event": true
+      |}
+    """.trimMargin())
+    eventQueries.insertEvent(
+      id = "some_id",
+      eventStart = OffsetDateTime.now(),
+      eventName = "some name"
+    )
+
+    handler.invoke(request)
+    handler.invoke(request2)
+
+    val (_, hasJoined) = queryByEmail("kevin@kevin.com")
+    assertTrue(hasJoined)
+  }
+
+  @Test fun `upsert has joined event prefers true`() = runBlocking {
+    val request = request("""
+      |{
+      |  "full_name": "Kevin",
+      |  "email": "kevin@kevin.com",
+      |  "status": "approved",
+      |  "event_id": "some_id",
+      |  "has_joined_event": true
+      |}
+    """.trimMargin())
+
+    val request2 = request("""
+      |{
+      |  "full_name": "Kevin",
+      |  "email": "kevin@kevin.com",
+      |  "status": "approved",
+      |  "event_id": "some_id",
+      |  "has_joined_event": false
+      |}
+    """.trimMargin())
+    eventQueries.insertEvent(
+      id = "some_id",
+      eventStart = OffsetDateTime.now(),
+      eventName = "some name"
+    )
+
+    handler.invoke(request)
+    handler.invoke(request2)
+
+    val (_, hasJoined) = queryByEmail("kevin@kevin.com")
+    assertTrue(hasJoined)
+  }
+
   private fun queryByEmail(email: String): Pair<String, Boolean> = driver.executeQuery(
     identifier = 0,
     sql = "SELECT event_id, has_joined_event FROM hour_of_action_event_attendance WHERE email = ?;",
