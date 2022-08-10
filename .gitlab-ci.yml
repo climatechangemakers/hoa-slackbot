@@ -25,6 +25,12 @@ lambda-runtime:linuxX64Test:
 attendance:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
   script: gradle :attendance:test
   only:
