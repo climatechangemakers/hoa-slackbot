@@ -4,7 +4,7 @@ CREATE TABLE hour_of_action_event_attendance(
   email TEXT NOT NULL,
   status TEXT NOT NULL,
   has_joined_event BOOLEAN NOT NULL,
-  UNIQUE (event_id, email, has_joined_event)
+  UNIQUE (event_id, email)
 );
 
 insert:
@@ -22,5 +22,12 @@ VALUES(
   :status,
   :hasJoinedEvent
 )
-ON CONFLICT(event_id, email, has_joined_event) DO UPDATE
-SET event_id = :eventId, full_name = :fullName, email = :email, status = :status, has_joined_event = :hasJoinedEvent;
+ON CONFLICT(event_id, email) DO UPDATE
+SET
+  event_id = :eventId,
+  full_name = :fullName,
+  email = :email,
+  status = :status,
+  -- The following OR always preserves TRUE.
+  has_joined_event = :hasJoinedEvent OR hour_of_action_event_attendance.has_joined_event
+;
