@@ -6,6 +6,7 @@ enum class EnvironmentVariable(val key: String) {
   DatabaseName("POSTGRES_DB"),
   DatabaseHostname("POSTGRES_HOSTNAME"),
   DatabasePort("POSTGRES_PORT"),
+  LumaApiKey("LUMA_API_KEY"),
 }
 
 fun getEnvironmentVariable(

@@ -5,7 +5,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable data class LumaEvent(
-  val id: String,
+  @SerialName("api_id") val id: String,
   val name: String,
-  @SerialName("start_time") val startTime: Instant,
+  @SerialName("secret_key") val secret: String?,
+  @SerialName("start_at") val startTime: Instant,
 )

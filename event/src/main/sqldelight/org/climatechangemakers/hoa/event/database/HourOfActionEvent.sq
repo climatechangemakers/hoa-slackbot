@@ -1,11 +1,19 @@
 CREATE TABLE hour_of_action_event(
   id TEXT NOT NULL PRIMARY KEY,
   event_start TIMESTAMPTZ NOT NULL,
-  event_name TEXT NOT NULL
+  event_name TEXT NOT NULL,
+  secret TEXT NOT NULL,
+  synced BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 insertEvent:
-INSERT INTO hour_of_action_event(id, event_start, event_name)
-VALUES(:id, DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)), :eventName)
+INSERT INTO hour_of_action_event(id, event_start, event_name, secret)
+VALUES(:id, DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)), :eventName, :secret)
 ON CONFLICT(id) DO UPDATE
-SET id = :id, event_start = DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)), event_name = :eventName;
+SET
+  id = :id,
+  event_start = DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)),
+  event_name = :eventName,
+  secret = :secret,
+  synced = hour_of_action_event.synced OR False
+;

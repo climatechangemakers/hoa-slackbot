@@ -3,6 +3,9 @@
 package org.climatechangemakers.hoa.event
 
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import kotlinx.serialization.json.Json
 import org.climatechangemakers.lambda.runtime.runLambda
 import org.postgresql.ds.PGSimpleDataSource
 import org.climatechangemakers.hoa.event.database.Database
@@ -15,5 +18,12 @@ suspend fun main() {
     password = getEnvironmentVariable(EnvironmentVariable.DatabasePassword)
     databaseName = getEnvironmentVariable(EnvironmentVariable.DatabaseName)
   }.asJdbcDriver()
-  runLambda(LumaEventLambdaHandler(Database(driver)))
+
+  val json = Json {
+    ignoreUnknownKeys = true
+    explicitNulls = false
+  }
+
+  val lumaService = KtorLumaService(HttpClient(CIO), json, getEnvironmentVariable(EnvironmentVariable.LumaApiKey))
+  runLambda(LumaEventLambdaHandler(Database(driver), lumaService))
 }

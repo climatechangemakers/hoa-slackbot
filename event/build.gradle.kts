@@ -37,6 +37,7 @@ dependencies {
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.postgresql)
   implementation(libs.sqldelight.jdbc.driver)
+  implementation(libs.ktor.client.cio)
   implementation(project(":multiplatform-aws-lambda-runtime"))
 
   testImplementation(libs.kotlin.test)

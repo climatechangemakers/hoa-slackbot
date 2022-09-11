@@ -27,7 +27,9 @@ SET default_table_access_method = heap;
 CREATE TABLE public.hour_of_action_event (
     id text NOT NULL,
     event_start timestamp with time zone NOT NULL,
-    event_name text NOT NULL
+    event_name text NOT NULL,
+    secret text NOT NULL,
+    synced boolean NOT NULL DEFAULT FALSE
 );
 
 
