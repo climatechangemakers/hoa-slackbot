@@ -1,5 +1,5 @@
 
 rootProject.name = "hoa-webhook"
 
-include(":event")
+include(":webhook")
 include(":multiplatform-aws-lambda-runtime")

@@ -22,7 +22,7 @@ lambda-runtime:linuxX64Test:
     - trunk
     - external_pull_requests
 
-attendance:jvmTest:
+webhook:jvmTest:
   image: gradle:7.4.2-jdk11
   stage: test
   services:
@@ -32,120 +32,56 @@ attendance:jvmTest:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_DRIVER: overlay2
   needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :attendance:test
+  script: gradle :webhook:test
   only:
     - trunk
     - external_pull_requests
 
-event:jvmTest:
-  image: gradle:7.4.2-jdk11
-  stage: test
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
-  needs: ["lambda-runtime:linuxX64Test", "lambda-runtime:jvmTest"]
-  script: gradle :event:test
-  only:
-    - trunk
-    - external_pull_requests
-
-attendance:docker:build:
+webhook:docker:build:
   image: docker:stable
   stage: build
   needs: []
   services:
     - docker:dind
   variables:
-    TAGGED_IMAGE: "$ATTENDANCE_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+    TAGGED_IMAGE: "$WEBHOOK_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
   script:
-    - docker build -t $TAGGED_IMAGE . -f attendance/production.dockerfile
-    - docker save $TAGGED_IMAGE > attendance.tar
+    - docker build -t $TAGGED_IMAGE . -f webhook/production.dockerfile
+    - docker save $TAGGED_IMAGE > webhook.tar
   artifacts:
     paths:
-      - attendance.tar
+      - webhook.tar
   only:
     - trunk
     - external_pull_requests
 
-event:docker:build:
-  image: docker:stable
-  stage: build
-  needs: []
-  services:
-    - docker:dind
-  variables:
-    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-  script:
-    - docker build -t $TAGGED_IMAGE . -f event/production.dockerfile
-    - docker save $TAGGED_IMAGE > event.tar
-  artifacts:
-    paths:
-      - event.tar
-  only:
-    - trunk
-    - external_pull_requests
+#webhook:ecr:publish:
+#  image: docker:stable
+#  stage: publish
+#  services:
+#    - docker:dind
+#  needs: ["event:jvmTest", "event:docker:build"]
+#  variables:
+#    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+#  before_script:
+#    - apk add --no-cache curl jq python3 py3-pip
+#    - pip install awscli
+#  script:
+#    - docker load -i event.tar
+#    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
+#    - docker push $EVENT_IMAGE_REPOSITORY
+#  only:
+#    - trunk
 
-attendance:ecr:publish:
-  image: docker:stable
-  stage: publish
-  services:
-    - docker:dind
-  needs: ["attendance:jvmTest", "attendance:docker:build"]
-  variables:
-    TAGGED_IMAGE: "$ATTENDANCE_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-  before_script:
-    - apk add --no-cache curl jq python3 py3-pip
-    - pip install awscli
-  script:
-    - docker load -i attendance.tar
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
-    - docker push $ATTENDANCE_IMAGE_REPOSITORY
-  only:
-    - trunk
-
-event:ecr:publish:
-  image: docker:stable
-  stage: publish
-  services:
-    - docker:dind
-  needs: ["event:jvmTest", "event:docker:build"]
-  variables:
-    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-  before_script:
-    - apk add --no-cache curl jq python3 py3-pip
-    - pip install awscli
-  script:
-    - docker load -i event.tar
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
-    - docker push $EVENT_IMAGE_REPOSITORY
-  only:
-    - trunk
-
-attendance:lambda:deploy:
-  image:
-    name: amazon/aws-cli
-    entrypoint: [""]
-  stage: deploy
-  needs: ["attendance:ecr:publish"]
-  variables:
-    TAGGED_IMAGE: "$ATTENDANCE_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-  script:
-    - aws lambda update-function-code --function-name $ATTENDANCE_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
-  only:
-    - trunk
-
-event:lambda:deploy:
-  image:
-    name: amazon/aws-cli
-    entrypoint: [""]
-  stage: deploy
-  needs: ["event:ecr:publish"]
-  variables:
-    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-  script:
-    - aws lambda update-function-code --function-name $EVENT_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
-  only:
-    - trunk
+#webhook:lambda:deploy:
+#  image:
+#    name: amazon/aws-cli
+#    entrypoint: [""]
+#  stage: deploy
+#  needs: ["event:ecr:publish"]
+#  variables:
+#    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+#  script:
+#    - aws lambda update-function-code --function-name $EVENT_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
+#  only:
+#    - trunk
