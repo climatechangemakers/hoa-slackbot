@@ -5,6 +5,7 @@ package org.climatechangemakers.hoa.event
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import org.climatechangemakers.lambda.runtime.runLambda
 import org.postgresql.ds.PGSimpleDataSource
@@ -25,5 +26,5 @@ suspend fun main() {
   }
 
   val lumaService = KtorLumaService(HttpClient(CIO), json, getEnvironmentVariable(EnvironmentVariable.LumaApiKey))
-  runLambda(LumaEventLambdaHandler(Database(driver), lumaService))
+  runLambda(LumaEventLambdaHandler(Database(driver), lumaService, Clock.System))
 }

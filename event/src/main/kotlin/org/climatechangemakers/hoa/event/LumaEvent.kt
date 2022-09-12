@@ -9,4 +9,5 @@ import kotlinx.serialization.Serializable
   val name: String,
   @SerialName("secret_key") val secret: String?,
   @SerialName("start_at") val startTime: Instant,
+  @SerialName("duration_minutes") val durationMinutes: Int?,
 )

@@ -1,6 +1,6 @@
-CREATE TABLE hour_of_action_event_attendance(
+CREATE TABLE hour_of_action_event_guest(
   event_id TEXT NOT NULL REFERENCES hour_of_action_event(id) ON DELETE CASCADE,
-  full_name TEXT NOT NULL,
+  full_name TEXT,
   email TEXT NOT NULL,
   status TEXT NOT NULL,
   has_joined_event BOOLEAN NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE hour_of_action_event_attendance(
 );
 
 insert:
-INSERT INTO hour_of_action_event_attendance(
+INSERT INTO hour_of_action_event_guest(
   event_id,
   full_name,
   email,
@@ -28,6 +28,5 @@ SET
   full_name = :fullName,
   email = :email,
   status = :status,
-  -- The following OR always preserves TRUE.
-  has_joined_event = :hasJoinedEvent OR hour_of_action_event_attendance.has_joined_event
+  has_joined_event = :hasJoinedEvent
 ;

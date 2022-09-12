@@ -4,12 +4,15 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 interface LumaService {
 
   suspend fun getEvents(): List<LumaEvent>
+
+  suspend fun getGuestsForEvent(eventSecret: String): List<LumaEventGuest>
 }
 
 class KtorLumaService(
@@ -31,9 +34,28 @@ class KtorLumaService(
       string = response.bodyAsText(),
     ).events
   }
+
+  override suspend fun getGuestsForEvent(eventSecret: String): List<LumaEventGuest> = buildList {
+    var nextCursor: String? = null
+    do {
+      val response = client.get(urlString = "https://api.lu.ma/event/guests") {
+        parameter("secret", eventSecret)
+        nextCursor?.let { parameter("pagination_cursor", it) }
+      }
+
+      val guests = json.decodeFromString(LumaEventGuestsWrapper.serializer(), response.bodyAsText())
+      guests.entries.let(this::addAll)
+      nextCursor = guests.nextCursor
+    } while (nextCursor != null)
+  }
 }
 
 @Serializable private class LumaEventWrapper(
   val events: List<LumaEvent>,
+)
+
+@Serializable private class LumaEventGuestsWrapper(
+  val entries: List<LumaEventGuest>,
+  @SerialName("next_cursor") val nextCursor: String?
 )
 
