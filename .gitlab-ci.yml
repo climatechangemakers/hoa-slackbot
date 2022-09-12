@@ -55,23 +55,23 @@ webhook:docker:build:
     - trunk
     - external_pull_requests
 
-#webhook:ecr:publish:
-#  image: docker:stable
-#  stage: publish
-#  services:
-#    - docker:dind
-#  needs: ["event:jvmTest", "event:docker:build"]
-#  variables:
-#    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-#  before_script:
-#    - apk add --no-cache curl jq python3 py3-pip
-#    - pip install awscli
-#  script:
-#    - docker load -i event.tar
-#    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
-#    - docker push $EVENT_IMAGE_REPOSITORY
-#  only:
-#    - trunk
+webhook:ecr:publish:
+  image: docker:stable
+  stage: publish
+  services:
+    - docker:dind
+  needs: ["webhook:jvmTest", "webhook:docker:build"]
+  variables:
+    TAGGED_IMAGE: "$WEBHOOK_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+  before_script:
+    - apk add --no-cache curl jq python3 py3-pip
+    - pip install awscli
+  script:
+    - docker load -i webhook.tar
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT
+    - docker push $WEBHOOK_IMAGE_REPOSITORY
+  only:
+    - trunk
 
 #webhook:lambda:deploy:
 #  image:
