@@ -26,8 +26,20 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.hour_of_action_event (
     id text NOT NULL,
-    event_start timestamp with time zone NOT NULL,
-    event_name text NOT NULL
+    start_time timestamp with time zone NOT NULL,
+    end_time timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    secret text NOT NULL,
+    synced boolean NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE public.hour_of_action_event_attendance(
+  event_id TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  status TEXT NOT NULL,
+  has_joined_event BOOLEAN NOT NULL,
+  UNIQUE (event_id, email)
 );
 
 
@@ -37,6 +49,8 @@ CREATE TABLE public.hour_of_action_event (
 
 ALTER TABLE ONLY public.hour_of_action_event
     ADD CONSTRAINT hour_of_action_event_pkey PRIMARY KEY (id);
+
+
 
 
 --

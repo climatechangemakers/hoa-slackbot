@@ -1,0 +1,42 @@
+CREATE TABLE hour_of_action_event(
+  id TEXT NOT NULL PRIMARY KEY,
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ NOT NULL,
+  name TEXT NOT NULL,
+  secret TEXT NOT NULL,
+  synced BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+insertEvent:
+INSERT INTO hour_of_action_event(
+  id,
+  start_time,
+  end_time,
+  name,
+  secret
+)
+VALUES(
+  :id,
+  DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)),
+  DATE_TRUNC('minute', CAST(:eventEnd AS TIMESTAMPTZ)),
+  :eventName,
+  :secret
+)
+ON CONFLICT(id) DO UPDATE
+SET
+  id = :id,
+  start_time = DATE_TRUNC('minute', CAST(:eventStart AS TIMESTAMPTZ)),
+  end_time = DATE_TRUNC('minute', CAST(:eventEnd AS TIMESTAMPTZ)),
+  name = :eventName,
+  secret = :secret,
+  synced = hour_of_action_event.synced OR False
+;
+
+selectUnsynced:
+SELECT id, secret FROM hour_of_action_event
+WHERE synced = FALSE AND end_time < :now;
+
+markSynced:
+UPDATE hour_of_action_event
+SET synced = TRUE
+WHERE id = :id;

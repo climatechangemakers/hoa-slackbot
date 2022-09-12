@@ -1,0 +1,32 @@
+CREATE TABLE hour_of_action_event_guest(
+  event_id TEXT NOT NULL REFERENCES hour_of_action_event(id) ON DELETE CASCADE,
+  full_name TEXT,
+  email TEXT NOT NULL,
+  status TEXT NOT NULL,
+  has_joined_event BOOLEAN NOT NULL,
+  UNIQUE (event_id, email)
+);
+
+insert:
+INSERT INTO hour_of_action_event_guest(
+  event_id,
+  full_name,
+  email,
+  status,
+  has_joined_event
+)
+VALUES(
+  :eventId,
+  :fullName,
+  :email,
+  :status,
+  :hasJoinedEvent
+)
+ON CONFLICT(event_id, email) DO UPDATE
+SET
+  event_id = :eventId,
+  full_name = :fullName,
+  email = :email,
+  status = :status,
+  has_joined_event = :hasJoinedEvent
+;
