@@ -5,6 +5,7 @@ package org.climatechangemakers.hoa.webhook
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import org.climatechangemakers.lambda.runtime.runLambda
@@ -25,6 +26,10 @@ suspend fun main() {
     explicitNulls = false
   }
 
-  val lumaService = KtorLumaService(HttpClient(CIO), json, getEnvironmentVariable(EnvironmentVariable.LumaApiKey))
+  val httpClient = HttpClient(CIO) {
+    install(HttpTimeout)
+  }
+
+  val lumaService = KtorLumaService(httpClient, json, getEnvironmentVariable(EnvironmentVariable.LumaApiKey))
   runLambda(LumaEventLambdaHandler(Database(driver), lumaService, Clock.System))
 }

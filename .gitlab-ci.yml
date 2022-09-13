@@ -73,15 +73,15 @@ webhook:ecr:publish:
   only:
     - trunk
 
-#webhook:lambda:deploy:
-#  image:
-#    name: amazon/aws-cli
-#    entrypoint: [""]
-#  stage: deploy
-#  needs: ["event:ecr:publish"]
-#  variables:
-#    TAGGED_IMAGE: "$EVENT_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
-#  script:
-#    - aws lambda update-function-code --function-name $EVENT_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
-#  only:
-#    - trunk
+webhook:lambda:deploy:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  stage: deploy
+  needs: ["webhook:ecr:publish"]
+  variables:
+    TAGGED_IMAGE: "$WEBHOOK_IMAGE_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+  script:
+    - aws lambda update-function-code --function-name $WEBHOOK_AWS_FUNCTION_ARN --image-uri $TAGGED_IMAGE
+  only:
+    - trunk
