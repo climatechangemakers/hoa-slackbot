@@ -5,6 +5,7 @@ package org.climatechangemakers.hoa.webhook
 import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
@@ -26,7 +27,7 @@ suspend fun main() {
     explicitNulls = false
   }
 
-  val httpClient = HttpClient(CIO) {
+  val httpClient = HttpClient(OkHttp) {
     install(HttpTimeout)
   }
 
