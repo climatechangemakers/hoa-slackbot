@@ -1,6 +1,7 @@
 package org.climatechangemakers.hoa.webhook
 
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -23,6 +24,7 @@ class KtorLumaService(
 
   override suspend fun getEvents(): List<LumaEvent> {
     val response = client.get(urlString = "https://api.lu.ma/user/events") {
+      timeout { requestTimeoutMillis = 60_000}
       headers {
         append("x-luma-api-key", lumaApiKey)
         append(HttpHeaders.Accept, ContentType.Application.Json)
@@ -39,6 +41,7 @@ class KtorLumaService(
     var nextCursor: String? = null
     do {
       val response = client.get(urlString = "https://api.lu.ma/event/guests") {
+        timeout { requestTimeoutMillis = 60_000}
         parameter("secret", eventSecret)
         nextCursor?.let { parameter("pagination_cursor", it) }
       }
