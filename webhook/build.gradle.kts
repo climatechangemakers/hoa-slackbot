@@ -38,6 +38,7 @@ dependencies {
   implementation(libs.postgresql)
   implementation(libs.sqldelight.jdbc.driver)
   implementation(libs.ktor.client.cio)
+  implementation(libs.ktor.client.okhttp)
   implementation(project(":multiplatform-aws-lambda-runtime"))
 
   testImplementation(libs.kotlin.test)
