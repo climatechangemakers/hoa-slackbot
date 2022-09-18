@@ -25,7 +25,7 @@ class LumaEventLambdaHandler(
   }
 
   private suspend fun syncEvents() {
-    val events = lumaService.getEvents().filter { it.secret != null && it.durationMinutes != null }
+    val events = lumaService.getEvents().filter { it.secret != null }
     hourOfActionEventQueries.insertEvents(events)
     println("Inserted ${events.size} events.")
   }
@@ -39,7 +39,10 @@ class LumaEventLambdaHandler(
   private suspend fun syncGuestsForEvent(unsyncedEvent: SelectUnsynced) {
     val guests = lumaService.getGuestsForEvent(unsyncedEvent.secret)
     hourOfActionEventQueries.transaction {
-      guests.forEach(hourOfActionEventGuestQueries::insertGuest)
+      guests
+        .asSequence()
+        .filter { it.eventId != null }
+        .forEach(hourOfActionEventGuestQueries::insertGuest)
       hourOfActionEventQueries.markSynced(unsyncedEvent.id)
     }
     println("Inserted ${guests.size} guests for event ${unsyncedEvent.id}.")
