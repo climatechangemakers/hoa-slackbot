@@ -18,7 +18,7 @@ fun HourOfActionEventQueries.insertLumaEvent(event: LumaEvent) {
     id = event.id,
     eventName = event.name,
     eventStart = event.startTime.toJavaInstant().atOffset(ZoneOffset.UTC),
-    eventEnd = (event.startTime + event.durationMinutes!!.minutes).toJavaInstant().atOffset(ZoneOffset.UTC),
+    eventEnd = (event.startTime + (event.durationMinutes ?: 60).minutes).toJavaInstant().atOffset(ZoneOffset.UTC),
     secret = requireNotNull(event.secret) { "Event id:${event.id} secret is null." },
   )
 }
@@ -29,7 +29,7 @@ fun HourOfActionEventQueries.selectedUnsynced(now: Instant): Query<SelectUnsynce
 
 fun HourOfActionEventGuestQueries.insertGuest(guest: LumaEventGuest) {
   insert(
-    eventId = guest.eventId,
+    eventId = guest.eventId!!,
     fullName = guest.fullName,
     email = guest.email,
     status = guest.approvalStatus,
